@@ -191,31 +191,31 @@ if [ "$homepart" != "0" ]; then
 fi
 #Installation
 pacman -Sy
-pacstrap -K /mnt base base_devel linux linux-firmware efibootmgr os-prober grub networkmanager neofetch man-db neovim
+pacstrap -K /mnt base base-devel linux linux-firmware efibootmgr os-prober grub networkmanager neofetch man-db neovim
 #fstab
 genfstab -U /mnt >> /mnt/etc/fstab
 #CHROOT
-alias a="arch-chroot /mnt"
+a="arch-chroot /mnt"
 #Timezone
-a ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
-a hwclock --systohc
+$a ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+$a hwclock --systohc
 #Localization
-a echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-a echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
-a locale-gen
-a echo "LANG=en_US.UTF-8" >> /etc/locale.conf
-a echo "KEYMAP=es" >> /etc/vconsole.conf
+$a echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+$a echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+$a locale-gen
+$a echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+$a echo "KEYMAP=es" >> /etc/vconsole.conf
 #Hostname
 echo -ne "Enter your desider hostname: "
 read hostname
-a echo "$hostname" >> /etc/hostname
+$a echo "$hostname" >> /etc/hostname
 echo -e "Set a root password"
-a passwd
+$a passwd
 #Bootloader
 clear
 echo -e "Installing GRUB"
-a grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-a grub-mkconfig -o /boot/grub/grub.cfg
+$a grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+$a grub-mkconfig -o /boot/grub/grub.cfg
 echo -ne "Installation complete, press ENTER to reboot to arch"
 read 
 shutdown now -r
