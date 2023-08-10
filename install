@@ -98,6 +98,40 @@ partitioning() {
 		fi
 	done
 }
+partition_selection(){
+	while [ "$efipart" == "0" ]; do
+		lsblk $disk
+		echo -ne "Please choose a partition number for the EFI partition: "
+		read efipart
+		if ! verify_disk $disk$efipart; then efipart=0;fi
+	done
+	while [ "$swappart" == "0" ]; do
+		lsblk $disk
+		echo -ne "Please choose a partition number for the SWAP partition (type 0 for none): "
+		read swappart
+		if [ "$swappart" == 0 ]; then
+			echo "Skipping SWAP partition"
+			break
+		fi
+		if ! verify_disk $disk$swappart; then swappart=0;fi
+	done
+	while [ "$rootpart" == "0" ]; do
+		lsblk $disk
+		echo -ne "Please choose a partition number for the root partition: "
+		read efipart
+		if ! verify_disk $disk$rootpart; then rootpart=0;fi
+	done
+	while [ "$homepart" == "0" ]; do
+		lsblk $disk
+		echo -ne "Please choose a partition number for the home partition (type 0 for none): "
+		read homepart
+		if [ "$homepart" == 0 ]; then
+			echo "Skipping home partition"
+			break
+		fi
+		if ! verify_disk $disk$homepart; then homepart=0;fi
+	done
+}
 
 #-------------#
 # MAIN SCRIPT #
@@ -137,4 +171,51 @@ if [ $? -eq 0 ]; then
 fi	
 #Partitions
 partitioning
-echo -e "EFI: $efipart\nSWAP: $swappart\nROOT: $rootpart\nHOME: $homepart"
+#Partition selection
+partition_selection
+#Formatting/mounting
+mkfs.fat -F 32 $disk$efipart
+if [ "$swappart" != "0" ]; then
+	mkswap $disk$swappart
+fi
+mkfs.ext4 $disk$rootpart
+mount $disk$rootpart /mnt
+mount -m $disk$efipart /mnt/boot 
+if [ "$homepart" != "0" ]; then
+	echo -ne "Do you want to format the home partition $bold$disk$homepart$reset? (y/n) "
+	read formathome
+	if [[ "$formathome" == "y" ]]; then
+		mkfs.ext4 $disk$homepart
+	fi
+	mount -m $disk$homepart /mnt/home
+fi
+#Installation
+pacman -Sy
+pacstrap -K /mnt base base_devel linux linux-firmware efibootmgr os-prober grub networkmanager neofetch man-db neovim
+#fstab
+genfstab -U /mnt >> /mnt/etc/fstab
+#CHROOT
+alias a="arch-chroot /mnt"
+#Timezone
+a ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
+a hwclock --systohc
+#Localization
+a echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+a echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+a locale-gen
+a echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+a echo "KEYMAP=es" >> /etc/vconsole.conf
+#Hostname
+echo -ne "Enter your desider hostname: "
+read hostname
+a echo "$hostname" >> /etc/hostname
+echo -e "Set a root password"
+a passwd
+#Bootloader
+clear
+echo -e "Installing GRUB"
+a grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+a grub-mkconfig -o /boot/grub/grub.cfg
+echo -ne "Installation complete, press ENTER to reboot to arch"
+read 
+shutdown now -r
