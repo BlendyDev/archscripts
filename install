@@ -1,0 +1,140 @@
+#!/bin/bash
+red='\033[0;31m'
+bold='\033[1m'
+reset='\033[0m'
+warn="$red$bold[!] $reset"
+last_partition(){
+	echo $(parted $disk print | tail -n 2 | head -n 1 | awk '{print $1}')
+}
+enough_space(){
+	[ $(parted $disk unit s print free | grep "Free Space" | tail -n 1 | awk '{print $2}' | sed 's/.$//') -gt $(calculate_start) ]
+}
+create_partition(){
+	#name, fs, firstfree, size
+	if [ "$1" == "0" ]; then
+		return 1
+	fi
+	if [ "$4" == "a" ]; then
+		size=100%
+	elif [ $(($3 + $4)) -eq 0 ]; then
+		return 1
+	else
+		size=$(($3+$4))s
+	fi
+	parted $disk mkpart $1 $2 $3s $size
+}
+
+calculate_start(){
+	firstfree=$(parted $disk unit s print free | grep "Free Space" | tail -n 1 | awk '{print $1}' | sed 's/.$//')
+	offset=$(((1024**2) / $(sector_size)))
+	echo $((firstfree + (offset - (firstfree % offset))))
+}
+sector_size() {
+	echo $(lsblk -o LOG-SEC $disk | tail -n 1 | sed 's/^ *//')
+}
+unallocated_space() {
+	echo $(parted $disk print free | grep "Free Space"  | tail -n 1 | awk '{print $3}')
+}
+verify_disk() {
+	disks=$(lsblk -no PATH -d)
+	if [ "$1" == "" ]; then
+		return 1
+	fi
+	for path in $disks; do
+		if [ "$path" == "$1" ]; then
+			return 0
+		fi
+	done
+	clear
+	echo -e "$bold$1$red$bold is not a valid disk.$reset"
+	return 1
+}
+partitioning() {
+	efipart=0;swappart=0;rootpart=0;homepart=0
+	if ! enough_space; then return; fi
+	create_partition 0 0 0 0
+	while [ $? -eq 1 ]; do
+		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
+		echo -ne "Enter the size of the EFI (boot) partition in MiB: "
+		read efisize
+		if create_partition efi FAT32 $(calculate_start) $(((efisize*(1024**2))/ $(sector_size))); then efipart=$(last_partition);fi
+	done
+	
+	if ! enough_space; then return; fi
+	create_partition 0 0 0 0
+	while [ $? -eq 1 ]; do
+		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
+		echo -ne "Enter the size of the SWAP partition in GiB (type 0 to skip): "
+		read swapsize
+		if [ "$swapsize" == "0" ]; then
+			echo -e "Skipping creation of the SWAP partition"
+		else
+			if create_partition swap linux-swap $(calculate_start) $(((swapsize*(1024**3))/ $(sector_size))); then swappart=$(last_partition);fi
+		fi
+	done
+	
+	if ! enough_space; then return; fi
+	create_partition 0 0 0 0
+	while [ $? -eq 1 ]; do
+		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
+		echo -ne "Enter the size of the root partition in GiB (type a to use all remaining space): "
+		read rootsize
+		if [ "$rootsize" != "a" ]; then rootsize=$(((rootsize*(1024**3))/ $(sector_size))); fi
+		if create_partition root ext4 $(calculate_start) $rootsize; then rootpart=$(last_partition);fi
+	done
+	
+	if ! enough_space; then return; fi
+	create_partition 0 0 0 0
+	while [ $? -eq 1 ]; do
+		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
+		echo -ne "Enter the size of the home partition in GiB (type a to use all remaining space or 0 to skip): "
+		read homesize
+		if [ "$homesize" == "0" ]; then
+			echo -e "Skipping creation of the home partition"
+		else
+			if [ "$homesize" != "a" ]; then homesize=$(((homesize*(1024**3))/ $(sector_size))); fi
+			if create_partition home ext4 $(calculate_start) $homesize; then homepart=$(last_partition);fi
+			
+		fi
+	done
+}
+
+#-------------#
+# MAIN SCRIPT #
+#-------------#
+
+#Case insensitive matching
+shopt -s nocasematch
+#Sync clock
+timedatectl
+#EFI check
+if [ "$(cat /sys/firmware/efi/fw_platform_size)" != 64 ]; then
+	echo -e "$red${bold}System not mounted in EFI mode. Aborting."
+	exit
+fi
+#Disk selection
+verify_disk ""
+while [ $? -eq 1 ]; do
+	echo ""
+	lsblk
+	echo -ne "Select a ${bold}disk$reset to install on: "
+	read disk
+	verify_disk $disk
+done
+clear
+echo -e "Selected disk $bold$disk$reset"
+#Partition table
+parted $disk print 2>&1 | grep -q "unrecognised disk label"
+if [ $? -eq 0 ]; then
+	echo -ne "${warn}Disk $bold$disk$reset has no known partition table, do you want to create one? (y/n) "
+	read createpart
+	if [[ "$createpart" == "y" ]]; then
+		parted $disk mklabel gpt
+	else
+		echo -e "$red${bold}Can't proceed with installation without a partition table. Aborting."
+		exit
+	fi
+fi	
+#Partitions
+partitioning
+echo -e "EFI: $efipart\nSWAP: $swappart\nROOT: $rootpart\nHOME: $homepart"
