@@ -206,7 +206,7 @@ $a locale-gen
 $a echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 $a echo "KEYMAP=es" >> /etc/vconsole.conf
 #Hostname
-echo -ne "Enter your desider hostname: "
+echo -ne "Enter your desired hostname: "
 read hostname
 $a echo "$hostname" >> /etc/hostname
 echo -e "Set a root password"
