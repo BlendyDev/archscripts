@@ -1,0 +1,17 @@
+#!/bin/bash
+echo -ne "Enter your username: "
+read username
+useradd -m $username
+pacman-key --init
+pacman -Sy
+pacman -S sudo
+usermod -aG wheel $username
+sed -i "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL" /etc/sudoers
+echo -e "Set a password for $username"
+passwd $username
+cd /home/$username
+mkdir git
+cd git
+git clone https://aur.archlinux.org/packages/paru.git
+cd paru
+su - $username -c "makepkg -si"
