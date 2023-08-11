@@ -209,6 +209,7 @@ echo "KEYMAP=es" >> /mnt/etc/vconsole.conf
 echo -ne "Enter your desired hostname: "
 read hostname
 echo "$hostname" >> /mnt/etc/hostname
+#Password
 echo -e "Set a root password"
 $a passwd
 #Bootloader
@@ -216,6 +217,8 @@ clear
 echo -e "Installing GRUB"
 $a grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 $a grub-mkconfig -o /boot/grub/grub.cfg
+#networkmanager
+$a systemctl enable NetworkManager
 echo -ne "Installation complete, press ENTER to reboot to arch"
 read 
 shutdown now -r
