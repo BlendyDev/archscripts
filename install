@@ -191,7 +191,7 @@ if [ "$homepart" != "0" ]; then
 fi
 #Installation
 pacman -Sy
-pacstrap -K /mnt base base-devel linux linux-firmware efibootmgr os-prober grub networkmanager neofetch man-db neovim
+pacstrap -K /mnt base base-devel linux linux-firmware git efibootmgr os-prober grub networkmanager neofetch man-db neovim
 #fstab
 genfstab -U /mnt >> /mnt/etc/fstab
 #CHROOT
