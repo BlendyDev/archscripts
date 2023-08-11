@@ -1,0 +1,19 @@
+#!/bin/bash
+shopt -s nocasematch
+echo -ne "Do you want to install the nvidia package? (y/n) "
+read nvidia
+if [[ "$nvidia" == "y" ]]; then
+ sudo pacman -S nvidia 
+fi
+echo -e "Installing paru"
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+cd ..
+paru -S xorg sddm
+sudo systemctl enable sddm
+echo -ne "Choose a DE/WM [k=KDE Plasma] "
+read environment
+if [[ "$environment" == "k" ]]
+  ./plasma
+fi

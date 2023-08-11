@@ -1,0 +1,17 @@
+#!/bin/bash
+shopt -s nocasematch
+echo -ne "Do you want to install a minimal version of KDE Plasma? (y/n) "
+read minimal
+if [[ "$minimal" == "y" ]]; then
+  paru -S plasma-desktop
+else
+  paru -S plasma
+fi
+echo -ne "Do you want to install KDE applications? (y/n) "
+read applications
+if [[ "$applications" == "y" ]]; then
+  paru -S kde-applications
+fi
+echo -e "Installation complete, press ENTER to reboot "
+read
+sudo shutdown now -r
