@@ -1,5 +1,6 @@
 #!/bin/bash
 rm .bash_profile
+cd archscripts
 echo -ne "Enter your username: "
 read username
 useradd -m $username
