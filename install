@@ -200,15 +200,15 @@ a="arch-chroot /mnt"
 $a ln -sf /usr/share/zoneinfo/Europe/Madrid /etc/localtime
 $a hwclock --systohc
 #Localization
-$a echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-$a echo "es_ES.UTF-8 UTF-8" >> /etc/locale.gen
+echo "en_US.UTF-8 UTF-8" >> /mnt/etc/locale.gen
+echo "es_ES.UTF-8 UTF-8" >> /mnt/etc/locale.gen
 $a locale-gen
-$a echo "LANG=en_US.UTF-8" >> /etc/locale.conf
-$a echo "KEYMAP=es" >> /etc/vconsole.conf
+echo "LANG=en_US.UTF-8" >> /mnt/etc/locale.conf
+echo "KEYMAP=es" >> /mnt/etc/vconsole.conf
 #Hostname
 echo -ne "Enter your desired hostname: "
 read hostname
-$a echo "$hostname" >> /etc/hostname
+echo "$hostname" >> /mnt/etc/hostname
 echo -e "Set a root password"
 $a passwd
 #Bootloader
