@@ -14,6 +14,6 @@ paru -S xorg sddm
 sudo systemctl enable sddm
 echo -ne "Choose a DE/WM [k=KDE Plasma] "
 read environment
-if [[ "$environment" == "k" ]]
+if [[ "$environment" == "k" ]]; then
   ./plasma
 fi
