@@ -219,6 +219,9 @@ $a grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 $a grub-mkconfig -o /boot/grub/grub.cfg
 #networkmanager
 $a systemctl enable NetworkManager
+cd ..
+mv archscripts /mnt/root
+echo "./archscripts/postinstall" >> /mnt/root/.bash_profile
 echo -ne "Installation complete, press ENTER to reboot to arch"
 read 
 shutdown now -r
