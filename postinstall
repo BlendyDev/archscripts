@@ -6,9 +6,8 @@ read username
 useradd -m $username
 pacman-key --init
 pacman -Sy
-pacman -S sudo
 usermod -aG wheel $username
-sed -i "s/# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/g" /etc/sudoers
+sed -i "s/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/g" /etc/sudoers
 echo -e "Set a password for $username"
 passwd $username
 cd ..

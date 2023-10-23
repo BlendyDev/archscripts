@@ -8,7 +8,7 @@ fi
 echo -e "Installing paru"
 git clone https://aur.archlinux.org/paru.git
 cd paru
-makepkg -si
+eval makepkg -si
 cd ..
 paru -S xorg sddm
 sudo systemctl enable sddm
