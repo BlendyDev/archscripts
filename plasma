@@ -1,8 +1,11 @@
 #!/bin/bash
 dependencies(){
+  paru -S unzip
+  paru -S npm
   paru -S ruby
   paru -S ruby-colorls
   paru -S rmtrash
+  paru -S chroma-bin
   paru -S ccat
   git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
   git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -25,7 +28,7 @@ fi
 sed -i "s/LayoutList=us/LayoutList=es/" ~/.config/kxkbrc
 paru -S zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-sudo curl -fsSL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf > /usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf
+curl -fsSL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf | tee /usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf > /dev/null
 cat ~/archscripts/.zshrc > ~/.zshrc 
 cat ~/archscripts/.p10k.zsh > ~/.p10k.zsh
 cat ~/archscripts/Default.profile > ~/.local/share/konsole/Default.profile
