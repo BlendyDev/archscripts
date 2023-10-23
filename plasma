@@ -25,14 +25,14 @@ read applications
 if [[ "$applications" == "y" ]]; then
   paru -S kde-applications
 fi
-sed -i "s/LayoutList=us/LayoutList=es/" ~/.config/kxkbrc
+cp ~/archscripts/kxkbrc ~/.config/kxkbrc
 paru -S zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-curl -fsSL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf | tee /usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf > /dev/null
-cat ~/archscripts/.zshrc > ~/.zshrc 
-cat ~/archscripts/.p10k.zsh > ~/.p10k.zsh
-cat ~/archscripts/Default.profile > ~/.local/share/konsole/Default.profile
-cat ~/archscripts/148925-bl1nk.colorscheme > ~/.local/share/konsole/148925-bl1nk.colorscheme
+curl -fsSL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf | sudo tee /usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf > /dev/null
+cp ~/archscripts/.zshrc ~/.zshrc 
+cp ~/archscripts/.p10k.zsh ~/.p10k.zsh
+cp ~/archscripts/Default.profile ~/.local/share/konsole/Default.profile
+cp ~/archscripts/148925-bl1nk.colorscheme ~/.local/share/konsole/148925-bl1nk.colorscheme
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 dependencies
 echo -e "Installation complete, press ENTER to reboot "
