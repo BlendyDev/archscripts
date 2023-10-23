@@ -33,6 +33,8 @@ cp ~/archscripts/.zshrc ~/.zshrc
 cp ~/archscripts/.p10k.zsh ~/.p10k.zsh
 cp ~/archscripts/Default.profile ~/.local/share/konsole/Default.profile
 cp ~/archscripts/148925-bl1nk.colorscheme ~/.local/share/konsole/148925-bl1nk.colorscheme
+rm -rf ~/.config/nvim
+rm -rf ~/.local/share/nvim
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 dependencies
 echo -e "Installation complete, press ENTER to reboot "
