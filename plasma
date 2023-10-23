@@ -1,4 +1,14 @@
 #!/bin/bash
+dependencies(){
+  paru -S ruby
+  paru -S ruby-colorls
+  paru -S rmtrash
+  paru -S ccat
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+  paru -S fzf
+  git clone https://github.com/NvChad/NvChad ~/.config/nvim --depth 1
+}
 shopt -s nocasematch
 echo -ne "Do you want to install a minimal version of KDE Plasma? (y/n) "
 read minimal
@@ -13,6 +23,15 @@ if [[ "$applications" == "y" ]]; then
   paru -S kde-applications
 fi
 sed -i "s/LayoutList=us/LayoutList=es/" ~/.config/kxkbrc
+paru -S zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sudo curl -fsSL https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf > /usr/share/fonts/TTF/JetBrainsMonoNerdFont-Regular.ttf
+cat ~/archscripts/.zshrc > ~/.zshrc 
+cat ~/archscripts/.p10k.zsh > ~/.p10k.zsh
+cat ~/archscripts/Default.profile > ~/.local/share/konsole/Default.profile
+cat ~/archscripts/148925-bl1nk.colorscheme > ~/.local/share/konsole/148925-bl1nk.colorscheme
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+dependencies
 echo -e "Installation complete, press ENTER to reboot "
 read
 sudo shutdown now -r
