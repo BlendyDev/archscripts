@@ -11,6 +11,7 @@ cd paru
 eval makepkg -si
 cd ..
 paru -S xorg sddm
+sudo localectl set-x11-keymap es
 sudo systemctl enable sddm
 echo -ne "Choose a DE/WM [k=KDE Plasma] "
 read environment

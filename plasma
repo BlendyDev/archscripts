@@ -12,6 +12,7 @@ read applications
 if [[ "$applications" == "y" ]]; then
   paru -S kde-applications
 fi
+sed -i "s/LayoutList=us/LayoutList=es/" ~/.config/kxkbrc
 echo -e "Installation complete, press ENTER to reboot "
 read
 sudo shutdown now -r
