@@ -64,13 +64,13 @@ verify_partition() {
 	return 1
 }
 used_partition() {
-  if [ "$1" == "0" ] then
+  if [ "$1" == "0" ]; then
     return 1
   fi
-  if [ "$1" == $efipart ] then return 1; fi
-  if [ "$1" == $swappart ] then return 1; fi
-  if [ "$1" == $rootpart ] then return 1; fi
-  if [ "$1" == $homepart ] then return 1; fi
+  if [ "$1" == $efipart ]; then return 1; fi
+  if [ "$1" == $swappart ]; then return 1; fi
+  if [ "$1" == $rootpart ]; then return 1; fi
+  if [ "$1" == $homepart ]; then return 1; fi
   return 0
 }
 partitioning() {
