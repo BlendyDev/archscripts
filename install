@@ -63,22 +63,36 @@ verify_partition() {
 	echo -e "$bold$1$red$bold is not a valid partition.$reset"
 	return 1
 }
+used_partition() {
+  if [ "$1" == "0" ] then
+    return 1
+  fi
+  if [ "$1" == $efipart ] then return 1; fi
+  if [ "$1" == $swappart ] then return 1; fi
+  if [ "$1" == $rootpart ] then return 1; fi
+  if [ "$1" == $homepart ] then return 1; fi
+  return 0
+}
 partitioning() {
 	efipart=0;swappart=0;rootpart=0;homepart=0
 	if ! enough_space; then return; fi
 	create_partition 0 0 0 0
 	while [ $? -eq 1 ]; do
 		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
-		echo -ne "Enter the size of the EFI (boot) partition in MiB: "
+    echo -ne "Enter the size of the EFI (boot) partition in MiB (type 0 to skip/choose existing): "
 		read efisize
-		if create_partition efi FAT32 $(calculate_start) $(((efisize*(1024**2))/ $(sector_size))); then efipart=$(last_partition);fi
+    if [ "$efisize" == "0" ]; then
+			echo -e "Skipping creation of a new EFI partition"
+		else
+		  if create_partition efi FAT32 $(calculate_start) $(((efisize*(1024**2))/ $(sector_size))); then efipart=$(last_partition);fi
+    fi
 	done
 	
 	if ! enough_space; then return; fi
 	create_partition 0 0 0 0
 	while [ $? -eq 1 ]; do
 		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
-		echo -ne "Enter the size of the SWAP partition in GiB (type 0 to skip): "
+		echo -ne "Enter the size of the SWAP partition in GiB (type 0 to skip/choose existing): "
 		read swapsize
 		if [ "$swapsize" == "0" ]; then
 			echo -e "Skipping creation of the SWAP partition"
@@ -91,17 +105,21 @@ partitioning() {
 	create_partition 0 0 0 0
 	while [ $? -eq 1 ]; do
 		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
-		echo -ne "Enter the size of the root partition in GiB (type a to use all remaining space): "
+		echo -ne "Enter the size of the root partition in GiB (type a to use all remaining space | 0 to choose existing): "
 		read rootsize
 		if [ "$rootsize" != "a" ]; then rootsize=$(((rootsize*(1024**3))/ $(sector_size))); fi
-		if create_partition root ext4 $(calculate_start) $rootsize; then rootpart=$(last_partition);fi
+    if [ "$rootsize" == "0" ]; then
+			echo -e "Skipping creation of a new root partition"
+		else
+		  if create_partition root ext4 $(calculate_start) $rootsize; then rootpart=$(last_partition);fi
+    fi
 	done
 	
 	if ! enough_space; then return; fi
 	create_partition 0 0 0 0
 	while [ $? -eq 1 ]; do
 		echo -e "You have $(unallocated_space) of free (unallocated) space in $bold$disk$reset."
-		echo -ne "Enter the size of the home partition in GiB (type a to use all remaining space or 0 to skip): "
+		echo -ne "Enter the size of the home partition in GiB (type a to use all remaining space or 0 to skip/choose existing): "
 		read homesize
 		if [ "$homesize" == "0" ]; then
 			echo -e "Skipping creation of the home partition"
@@ -117,22 +135,32 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the EFI partition: "
 		read efipart
+    if used_partition $efipart; then continue; fi
 		if ! verify_partition $disk$efipart; then efipart=0;fi
 	done
 	while [ "$swappart" == "0" ]; do
 		lsblk $disk
 		echo -ne "Please choose a partition number for the SWAP partition (type 0 for none): "
 		read swappart
+    if used_partition $swappart; then continue; fi
 		if [ "$swappart" == 0 ]; then
 			echo "Skipping SWAP partition"
 			break
 		fi
 		if ! verify_partition $disk$swappart; then swappart=0;fi
 	done
+  while [ "$rootpart" == "0" ]; do
+		lsblk $disk
+		echo -ne "Please choose a partition number for the root partition: "
+		read rootpart
+    if used_partition $rootpart; then continue; fi
+		if ! verify_partition $disk$rootpart; then rootpart=0;fi
+	done
 	while [ "$homepart" == "0" ]; do
 		lsblk $disk
 		echo -ne "Please choose a partition number for the home partition (type 0 for none): "
 		read homepart
+    if used_partition $homepart; then continue; fi
 		if [ "$homepart" == 0 ]; then
 			echo "Skipping home partition"
 			break
