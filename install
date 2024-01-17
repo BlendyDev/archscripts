@@ -72,7 +72,7 @@ used_partition() {
   if [ "$1" == "$swappart" ]; then used=$((used+1)); fi
   if [ "$1" == "$rootpart" ]; then used=$((used+1)); fi
   if [ "$1" == "$homepart" ]; then used=$((used+1)); fi
-  if [ $used -gt 1 ]; then echo "${red}Partition already in use!"; return 1; fi
+  if [ $used -gt 1 ]; then echo -e "${red}Partition already in use!$reset"; return 1; fi
   return 0
 }
 partitioning() {
