@@ -137,7 +137,7 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the EFI partition: "
 		read efipart
-    if ! used_partition $efipart; then efipart=0; fi
+    if ! used_partition $efipart; then efipart=0; continue; fi
 		if ! verify_partition $disk$efipart; then efipart=0;fi
 	done
 	while [ "$swappart" == "0" ]; do
@@ -155,7 +155,7 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the root partition: "
 		read rootpart
-    if ! used_partition $rootpart; then rootpart=0; fi
+    if ! used_partition $rootpart; then rootpart=0; continue; fi
 		if ! verify_partition $disk$rootpart; then rootpart=0;fi
 	done
 	while [ "$homepart" == "0" ]; do
