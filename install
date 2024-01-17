@@ -49,6 +49,20 @@ verify_disk() {
 	echo -e "$bold$1$red$bold is not a valid disk.$reset"
 	return 1
 }
+verify_partition() {
+	partitions=$(lsblk -no PATH)
+	if [ "$1" == "" ]; then
+		return 1
+	fi
+	for path in $partitions; do
+		if [ "$path" == "$1" ]; then
+			return 0
+		fi
+	done
+	clear
+	echo -e "$bold$1$red$bold is not a valid partition.$reset"
+	return 1
+}
 partitioning() {
 	efipart=0;swappart=0;rootpart=0;homepart=0
 	if ! enough_space; then return; fi
@@ -103,7 +117,7 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the EFI partition: "
 		read efipart
-		if ! verify_disk $disk$efipart; then efipart=0;fi
+		if ! verify_partition $disk$efipart; then efipart=0;fi
 	done
 	while [ "$swappart" == "0" ]; do
 		lsblk $disk
@@ -113,13 +127,7 @@ partition_selection(){
 			echo "Skipping SWAP partition"
 			break
 		fi
-		if ! verify_disk $disk$swappart; then swappart=0;fi
-	done
-	while [ "$rootpart" == "0" ]; do
-		lsblk $disk
-		echo -ne "Please choose a partition number for the root partition: "
-		read efipart
-		if ! verify_disk $disk$rootpart; then rootpart=0;fi
+		if ! verify_partition $disk$swappart; then swappart=0;fi
 	done
 	while [ "$homepart" == "0" ]; do
 		lsblk $disk
@@ -129,7 +137,7 @@ partition_selection(){
 			echo "Skipping home partition"
 			break
 		fi
-		if ! verify_disk $disk$homepart; then homepart=0;fi
+		if ! verify_partition $disk$homepart; then homepart=0;fi
 	done
 }
 
