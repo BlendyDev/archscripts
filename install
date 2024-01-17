@@ -135,14 +135,14 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the EFI partition: "
 		read efipart
-    if used_partition $efipart; then continue; fi
+    if used_partition $efipart; then efipart=0; fi
 		if ! verify_partition $disk$efipart; then efipart=0;fi
 	done
 	while [ "$swappart" == "0" ]; do
 		lsblk $disk
 		echo -ne "Please choose a partition number for the SWAP partition (type 0 for none): "
 		read swappart
-    if used_partition $swappart; then continue; fi
+    if used_partition $swappart; then swappart=0;continue; fi
 		if [ "$swappart" == 0 ]; then
 			echo "Skipping SWAP partition"
 			break
@@ -153,14 +153,14 @@ partition_selection(){
 		lsblk $disk
 		echo -ne "Please choose a partition number for the root partition: "
 		read rootpart
-    if used_partition $rootpart; then continue; fi
+    if used_partition $rootpart; then rootpart=0; fi
 		if ! verify_partition $disk$rootpart; then rootpart=0;fi
 	done
 	while [ "$homepart" == "0" ]; do
 		lsblk $disk
 		echo -ne "Please choose a partition number for the home partition (type 0 for none): "
 		read homepart
-    if used_partition $homepart; then continue; fi
+    if used_partition $homepart; then homepart=0;continue; fi
 		if [ "$homepart" == 0 ]; then
 			echo "Skipping home partition"
 			break
