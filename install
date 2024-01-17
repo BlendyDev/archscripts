@@ -72,7 +72,7 @@ used_partition() {
   if [ "$1" == "$swappart" ]; then used=$((used+1)); fi
   if [ "$1" == "$rootpart" ]; then used=$((used+1)); fi
   if [ "$1" == "$homepart" ]; then used=$((used+1)); fi
-  if [ $used -gt 1]; then return 1
+  if [ $used -gt 1 ]; then return 1; fi
   return 0
 }
 partitioning() {
